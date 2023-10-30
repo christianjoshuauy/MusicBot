@@ -17,9 +17,8 @@ const play = async (interaction, player, queue) => {
     if (!queue.connection)
       await queue.connect(interaction.member.voice.channel);
   } catch {
-    void player.deleteQueue(interaction.guildId);
     return void interaction.followUp({
-      content: "Could not join your voice channel!",
+      content: "❌ | Could not join your voice channel!",
     });
   }
 
@@ -29,7 +28,7 @@ const play = async (interaction, player, queue) => {
     }...`,
   });
   searchResult.playlist
-    ? queue.addTracks(searchResult.tracks)
+    ? queue.addTrack(searchResult.tracks)
     : queue.addTrack(searchResult.tracks[0]);
   if (!queue.isPlaying()) {
     await queue.node.play();

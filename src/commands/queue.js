@@ -17,7 +17,7 @@ const getQueue = async (interaction, player, queue) => {
     content: `⏱ | Fetching the queue...`,
   });
   if (queue.isPlaying()) {
-    if (queue.tracks === undefined || queue.tracks.length === 0) {
+    if (queue.tracks === undefined || queue.tracks.size === 0) {
       await interaction.followUp({
         content: `⏱ | Queue is empty...`,
       });

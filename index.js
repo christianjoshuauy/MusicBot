@@ -1,7 +1,12 @@
 const { REST, Routes, Client, GatewayIntentBits } = require("discord.js");
 const { Player } = require("discord-player");
 const { play } = require("./src/commands/play");
-const { showPlaying, showQueue, showSkip } = require("./src/functions");
+const {
+  showPlaying,
+  showQueue,
+  showSkip,
+  showPlaylist,
+} = require("./src/functions");
 const { skip } = require("./src/commands/skip");
 const { stop } = require("./src/commands/stop");
 const { getQueue } = require("./src/commands/queue");
@@ -60,19 +65,42 @@ client.on("ready", () => {
 
 let queue;
 client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
+  if (!interaction.isChatInputCommand() && !interaction.isButton()) return;
 
   queue = player.nodes.create(interaction.guild, {
     metadata: interaction.channel,
   });
-  if (interaction.commandName === "play") {
-    await play(interaction, player, queue);
-  } else if (interaction.commandName === "skip") {
-    skip(interaction, player, queue);
-  } else if (interaction.commandName === "stop") {
-    stop(interaction, player, queue);
-  } else if (interaction.commandName === "queue") {
-    getQueue(interaction, player, queue);
+
+  if (interaction.isButton()) {
+    const { customId } = interaction;
+
+    if (customId === "play") {
+      if (queue.node.isPaused()) {
+        queue.node.resume();
+        queue.metadata.send("▶️ | Song resumed!");
+        await interaction.deferUpdate();
+      }
+    } else if (customId === "pause") {
+      if (queue.node.isPlaying()) {
+        queue.node.pause();
+        queue.metadata.send("⏸ | Song paused!");
+        await interaction.deferUpdate();
+      }
+    } else if (customId === "next") {
+      skip(interaction, player, queue);
+    } else if (customId === "showQueue") {
+      getQueue(interaction, player, queue);
+    }
+  } else {
+    if (interaction.commandName === "play") {
+      await play(interaction, player, queue);
+    } else if (interaction.commandName === "skip") {
+      skip(interaction, player, queue);
+    } else if (interaction.commandName === "stop") {
+      stop(interaction, player, queue);
+    } else if (interaction.commandName === "queue") {
+      getQueue(interaction, player, queue);
+    }
   }
 });
 
@@ -100,6 +128,10 @@ player.events.on("playerStart", (queue, track) => {
 
 player.events.on("audioTrackAdd", (queue, track) => {
   showQueue(queue, track);
+});
+
+player.events.on("audioTracksAdd", (queue, tracks) => {
+  showPlaylist(queue, tracks);
 });
 
 player.events.on("playerSkip", (queue, track) => {
