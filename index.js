@@ -1,5 +1,10 @@
 const { REST, Routes, Client, GatewayIntentBits } = require("discord.js");
-const { Player, QueryType, useMainPlayer } = require("discord-player");
+const { Player } = require("discord-player");
+const { play } = require("./src/commands/play");
+const { showPlaying, showQueue, showSkip } = require("./src/functions");
+const { skip } = require("./src/commands/skip");
+const { stop } = require("./src/commands/stop");
+const { getQueue } = require("./src/commands/queue");
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
 });
@@ -53,47 +58,21 @@ client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
+let queue;
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
+  queue = player.nodes.create(interaction.guild, {
+    metadata: interaction.channel,
+  });
   if (interaction.commandName === "play") {
-    await interaction.deferReply();
-
-    const query = interaction.options.get("query").value;
-    const searchResult = await player
-      .search(query, {
-        requestedBy: interaction.user,
-        searchEngine: QueryType.AUTO,
-      })
-      .catch(() => {});
-    if (!searchResult || !searchResult.hasTracks())
-      return void interaction.followUp({ content: "No results were found!" });
-
-    const queue = player.nodes.create(interaction.guild, {
-      metadata: interaction.channel,
-    });
-
-    try {
-      if (!queue.connection)
-        await queue.connect(interaction.member.voice.channel);
-    } catch {
-      void player.deleteQueue(interaction.guildId);
-      return void interaction.followUp({
-        content: "Could not join your voice channel!",
-      });
-    }
-
-    await interaction.followUp({
-      content: `⏱ | Loading your ${
-        searchResult.playlist ? "playlist" : "track"
-      }...`,
-    });
-    searchResult.playlist
-      ? queue.addTrack(searchResult.tracks)
-      : queue.addTrack(searchResult.tracks[0]);
-    if (!queue.isPlaying()) {
-      await queue.node.play();
-    }
+    await play(interaction, player, queue);
+  } else if (interaction.commandName === "skip") {
+    skip(interaction, player, queue);
+  } else if (interaction.commandName === "stop") {
+    stop(interaction, player, queue);
+  } else if (interaction.commandName === "queue") {
+    getQueue(interaction, player, queue);
   }
 });
 
@@ -101,40 +80,42 @@ client.login(process.env.CLIENT_TOKEN);
 
 let player = new Player(client);
 (async () => {
-  await player.extractors.loadDefault((ext) => ext !== "YouTubeExtractor");
+  await player.extractors.loadDefault((ext) => ext !== "YoutubeExtractor");
 })();
 
-player.on("error", (queue, error) => {
-  console.log(
-    `[${queue.guild.name}] Error emitted from the queue: ${error.message}`
-  );
+player.events.on("error", (queue, error) => {
+  console.log(`General player error event: ${error.message}`);
+  console.log(error);
 });
+
 player.on("connectionError", (queue, error) => {
   console.log(
     `[${queue.guild.name}] Error emitted from the connection: ${error.message}`
   );
 });
 
-player.on("trackStart", (queue, track) => {
-  queue.metadata.send(
-    `🎶 | Started playing: **${track.title}** in **${queue.connection.channel.name}**!`
-  );
+player.events.on("playerStart", (queue, track) => {
+  showPlaying(queue, track);
 });
 
-player.on("trackAdd", (queue, track) => {
-  queue.metadata.send(`🎶 | Track **${track.title}** queued!`);
+player.events.on("audioTrackAdd", (queue, track) => {
+  showQueue(queue, track);
 });
 
-player.on("botDisconnect", (queue) => {
+player.events.on("playerSkip", (queue, track) => {
+  showSkip(queue, track);
+});
+
+player.events.on("disconnect", (queue) => {
   queue.metadata.send(
     "❌ | I was manually disconnected from the voice channel, clearing queue!"
   );
 });
 
-player.on("channelEmpty", (queue) => {
+player.events.on("emptyChannel", (queue) => {
   queue.metadata.send("❌ | Nobody is in the voice channel, leaving...");
 });
 
-player.on("queueEnd", (queue) => {
+player.events.on("emptyQueue", (queue) => {
   queue.metadata.send("✅ | Queue finished!");
 });
