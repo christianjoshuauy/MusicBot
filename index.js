@@ -1,9 +1,8 @@
 const { REST, Routes, Client, GatewayIntentBits } = require("discord.js");
-const { Player, QueryType } = require("discord-player");
+const { Player, QueryType, useMainPlayer } = require("discord-player");
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
 });
-
 require("dotenv").config();
 
 const commands = [
@@ -70,7 +69,7 @@ client.on("interactionCreate", async (interaction) => {
     if (!searchResult || !searchResult.hasTracks())
       return void interaction.followUp({ content: "No results were found!" });
 
-    const queue = player.createQueue(interaction.guild, {
+    const queue = player.nodes.create(interaction.guild, {
       metadata: interaction.channel,
     });
 
@@ -90,15 +89,20 @@ client.on("interactionCreate", async (interaction) => {
       }...`,
     });
     searchResult.playlist
-      ? queue.addTracks(searchResult.tracks)
+      ? queue.addTrack(searchResult.tracks)
       : queue.addTrack(searchResult.tracks[0]);
-    if (!queue.playing) await queue.play();
+    if (!queue.isPlaying()) {
+      await queue.node.play();
+    }
   }
 });
 
 client.login(process.env.CLIENT_TOKEN);
 
-const player = new Player(client);
+let player = new Player(client);
+(async () => {
+  await player.extractors.loadDefault((ext) => ext !== "YouTubeExtractor");
+})();
 
 player.on("error", (queue, error) => {
   console.log(
