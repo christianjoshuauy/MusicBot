@@ -5,10 +5,33 @@ const {
   ActionRowBuilder,
 } = require("discord.js");
 
+let playerMsgId;
+
 const showPlaying = async (queue, track) => {
   const buttons = getButtons();
   const embed = getPlayEmbed(track, queue);
-  await queue.metadata.send({ embeds: [embed], components: [buttons] });
+  if (playerMsgId) {
+    const lastMessage = await queue.metadata.messages.fetch(playerMsgId);
+    if (lastMessage && lastMessage.deletable) {
+      lastMessage
+        .delete()
+        .then(() => {
+          console.log("Message deleted successfully.");
+        })
+        .catch((error) => {
+          console.error("Error deleting the message:", error);
+        });
+    } else {
+      console.log(
+        "Cannot delete the message. Check bot permissions or message existence."
+      );
+    }
+  }
+  const msg = await queue.metadata.send({
+    embeds: [embed],
+    components: [buttons],
+  });
+  playerMsgId = msg.id;
 };
 
 const showQueue = async (queue, track) => {
