@@ -11,16 +11,10 @@ const showPlaying = async (queue, track) => {
   const buttons = getButtons();
   const embed = getPlayEmbed(track, queue);
   if (playerMsgId) {
+    // Delete Last Player Message
     const lastMessage = await queue.metadata.messages.fetch(playerMsgId);
     if (lastMessage && lastMessage.deletable) {
-      lastMessage
-        .delete()
-        .then(() => {
-          console.log("Message deleted successfully.");
-        })
-        .catch((error) => {
-          console.error("Error deleting the message:", error);
-        });
+      await lastMessage.delete();
     } else {
       console.log(
         "Cannot delete the message. Check bot permissions or message existence."
@@ -31,6 +25,7 @@ const showPlaying = async (queue, track) => {
     embeds: [embed],
     components: [buttons],
   });
+  await msg.pin();
   playerMsgId = msg.id;
 };
 
