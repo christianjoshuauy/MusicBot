@@ -13,13 +13,7 @@ const showPlaying = async (queue, track) => {
   if (playerMsgId) {
     // Delete Last Player Message
     const lastMessage = await queue.metadata.messages.fetch(playerMsgId);
-    if (lastMessage && lastMessage.deletable) {
-      await lastMessage.delete();
-    } else {
-      console.log(
-        "Cannot delete the message. Check bot permissions or message existence."
-      );
-    }
+    await lastMessage.delete();
   }
   const msg = await queue.metadata.send({
     embeds: [embed],
