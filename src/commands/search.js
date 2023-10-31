@@ -31,7 +31,7 @@ const search = async (interaction, player, queue) => {
 
   const embed = new EmbedBuilder()
     .setTitle(`Your Search Results from - "${query}"!`)
-    .setThumbnail(tracks[0].thumbnail)
+    .setThumbnail(searchResult.tracks[0].thumbnail)
     .setDescription(tracksToDescription(searchResult.tracks, true))
     .setColor(Colors.Blue);
 

@@ -10,6 +10,7 @@ const {
 const { skip } = require("./src/commands/skip");
 const { stop } = require("./src/commands/stop");
 const { getQueue } = require("./src/commands/queue");
+const { search } = require("./src/commands/search");
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
 });
@@ -18,13 +19,26 @@ require("dotenv").config();
 const commands = [
   {
     name: "play",
-    description: "Plays a song from youtube",
+    description: "Plays a song",
     type: 1,
     options: [
       {
         name: "query",
         type: 3,
         description: "The song you want to play",
+        required: true,
+      },
+    ],
+  },
+  {
+    name: "search",
+    description: "Searches a song",
+    type: 1,
+    options: [
+      {
+        name: "query",
+        type: 3,
+        description: "The song you want to search",
         required: true,
       },
     ],
@@ -78,14 +92,14 @@ client.on("interactionCreate", async (interaction) => {
       if (queue.node.isPaused()) {
         queue.node.resume();
         queue.metadata.send("▶️ | Song resumed!");
-        await interaction.deferUpdate();
       }
+      await interaction.deferUpdate();
     } else if (customId === "pause") {
       if (queue.node.isPlaying()) {
         queue.node.pause();
         queue.metadata.send("⏸ | Song paused!");
-        await interaction.deferUpdate();
       }
+      await interaction.deferUpdate();
     } else if (customId === "next") {
       skip(interaction, player, queue);
     } else if (customId === "showQueue") {
@@ -95,11 +109,13 @@ client.on("interactionCreate", async (interaction) => {
     if (interaction.commandName === "play") {
       await play(interaction, player, queue);
     } else if (interaction.commandName === "skip") {
-      skip(interaction, player, queue);
+      await skip(interaction, player, queue);
     } else if (interaction.commandName === "stop") {
-      stop(interaction, player, queue);
+      await stop(interaction, player, queue);
     } else if (interaction.commandName === "queue") {
-      getQueue(interaction, player, queue);
+      await getQueue(interaction, player, queue);
+    } else if (interaction.commandName === "search") {
+      await search(interaction, player, queue);
     }
   }
 });
