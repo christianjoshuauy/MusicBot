@@ -35,6 +35,24 @@ const play = async (interaction, player, queue) => {
   }
 };
 
+const playFromSearch = async (track, queue) => {
+  try {
+    if (!queue.connection)
+      await queue.connect(interaction.member.voice.channel);
+  } catch {
+    return void interaction.followUp({
+      content: "❌ | Could not join your voice channel!",
+    });
+  }
+
+  await queue.metadata.send(`⏱ | Loading your track..`);
+  queue.addTrack(track);
+  if (!queue.isPlaying()) {
+    await queue.node.play();
+  }
+};
+
 module.exports = {
   play,
+  playFromSearch,
 };

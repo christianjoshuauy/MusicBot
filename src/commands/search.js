@@ -1,5 +1,11 @@
 const { QueryType } = require("discord-player");
+const { EmbedBuilder, Colors } = require("discord.js");
 const { tracksToDescription } = require("../functions");
+const {
+  setSearching,
+  isSearching,
+  getSearchMsgId,
+} = require("../states/searchState");
 
 const search = async (interaction, player, queue) => {
   await interaction.deferReply();
@@ -29,13 +35,19 @@ const search = async (interaction, player, queue) => {
     } search results...`,
   });
 
+  if (isSearching()) {
+    const pastMsg = await queue.metadata.messages.fetch(getSearchMsgId());
+    await pastMsg.delete();
+  }
+
   const embed = new EmbedBuilder()
-    .setTitle(`Your Search Results from - "${query}"!`)
+    .setTitle(`Your Search Results - "${query}"`)
     .setThumbnail(searchResult.tracks[0].thumbnail)
     .setDescription(tracksToDescription(searchResult.tracks, true))
     .setColor(Colors.Blue);
 
-  await queue.metadata.send({ embeds: [embed] });
+  const msg = await queue.metadata.send({ embeds: [embed] });
+  setSearching(msg.id, searchResult.tracks);
 };
 
 module.exports = {

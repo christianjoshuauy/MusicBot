@@ -1,6 +1,6 @@
 const { REST, Routes, Client, GatewayIntentBits } = require("discord.js");
 const { Player } = require("discord-player");
-const { play } = require("./src/commands/play");
+const { play, playFromSearch } = require("./src/commands/play");
 const {
   showPlaying,
   showQueue,
@@ -11,8 +11,14 @@ const { skip } = require("./src/commands/skip");
 const { stop } = require("./src/commands/stop");
 const { getQueue } = require("./src/commands/queue");
 const { search } = require("./src/commands/search");
+const { isSearching, getTrackFromNumber } = require("./src/states/searchState");
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
 });
 require("dotenv").config();
 
@@ -78,6 +84,21 @@ client.on("ready", () => {
 });
 
 let queue;
+
+client.on("messageCreate", (message) => {
+  if (message.author.bot || !isSearching()) return;
+
+  const content = message.content.trim();
+  console.log(message.content);
+  const number = parseInt(content);
+
+  if (!isNaN(number) && Number.isInteger(number)) {
+    if (number >= 1 && number <= 20) {
+      playFromSearch(getTrackFromNumber(number), queue);
+    }
+  }
+});
+
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand() && !interaction.isButton()) return;
 
