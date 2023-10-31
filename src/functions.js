@@ -28,7 +28,7 @@ const showPlaylist = async (queue, tracks) => {
 
 const getPlayEmbed = (track, queue) => {
   const embeddedMessage = new EmbedBuilder()
-    .setTitle(`Now Playing ${track.title} by ${track.author}!`)
+    .setTitle(`📼 Now Playing ${track.title} by ${track.author}!`)
     .setThumbnail(track.thumbnail)
     .setDescription(
       `[Open in Spotify](${
@@ -44,7 +44,7 @@ const getPlayEmbed = (track, queue) => {
 
 const getQueueEmbed = (track) => {
   const embeddedMessage = new EmbedBuilder()
-    .setTitle(`Queued ${track.title} by ${track.author}!`)
+    .setTitle(`🎶 Queued ${track.title} by ${track.author}!`)
     .setThumbnail(track.thumbnail)
     .setDescription(`[Open in Spotify](${track.url})`)
     .setColor(Colors.Blue);
@@ -54,7 +54,7 @@ const getQueueEmbed = (track) => {
 
 const getSkipEmbed = (track) => {
   const embeddedMessage = new EmbedBuilder()
-    .setTitle(`Skipped ${track.title} by ${track.author}!`)
+    .setTitle(`⏭️ Skipped ${track.title} by ${track.author}!`)
     .setThumbnail(track.thumbnail)
     .setDescription(`[Open in Spotify](${track.url})`)
     .setColor(Colors.Blue);
@@ -64,7 +64,7 @@ const getSkipEmbed = (track) => {
 
 const getTracksEmbed = (description) => {
   const embeddedMessage = new EmbedBuilder()
-    .setTitle(`Here's the Queued Songs!`)
+    .setTitle(`🎶 Here's the Queued Songs!`)
     .setDescription(description)
     .setColor(Colors.Blue);
 

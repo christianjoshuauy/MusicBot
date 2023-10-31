@@ -7,18 +7,18 @@ const stop = async (interaction, player, queue) => {
   } catch {
     void player.deleteQueue(interaction.guildId);
     return void interaction.followUp({
-      content: "Could not join your voice channel!",
+      content: "❌ | Could not join your voice channel!",
     });
   }
 
   await interaction.followUp({
-    content: `⏱ | Stopping the bot...`,
+    content: `✋ | Stopping the bot...`,
   });
   if (queue.isPlaying()) {
     await queue.node.stop();
   } else {
     await interaction.followUp({
-      content: `⏱ | Bot is not playing...`,
+      content: `❌ | Bot is not playing...`,
     });
   }
 };

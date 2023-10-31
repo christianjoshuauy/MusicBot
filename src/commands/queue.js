@@ -14,12 +14,12 @@ const getQueue = async (interaction, player, queue) => {
   }
 
   await interaction.followUp({
-    content: `⏱ | Fetching the queue...`,
+    content: `🐕 | Fetching the queue...`,
   });
   if (queue.isPlaying()) {
     if (queue.tracks === undefined || queue.tracks.size === 0) {
       await interaction.followUp({
-        content: `⏱ | Queue is empty...`,
+        content: `❌ | Queue is empty...`,
       });
     } else {
       const description = tracksToDescription(queue.tracks);
@@ -29,7 +29,7 @@ const getQueue = async (interaction, player, queue) => {
     }
   } else {
     await interaction.followUp({
-      content: `⏱ | Bot is not playing...`,
+      content: `❌ | Bot is not playing...`,
     });
   }
 };

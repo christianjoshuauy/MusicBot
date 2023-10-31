@@ -12,13 +12,13 @@ const skip = async (interaction, player, queue) => {
   }
 
   await interaction.followUp({
-    content: `⏱ | Skipping your track...`,
+    content: `⏭️ | Skipping your track...`,
   });
   if (queue.isPlaying()) {
     await queue.node.skip();
   } else {
     await interaction.followUp({
-      content: `⏱ | Nothing is playing...`,
+      content: `❌ | Nothing is playing...`,
     });
   }
 };
