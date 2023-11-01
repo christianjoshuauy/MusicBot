@@ -19,7 +19,6 @@ const showPlaying = async (queue, track) => {
     embeds: [embed],
     components: [buttons],
   });
-  await msg.pin();
   playerMsgId = msg.id;
 };
 
