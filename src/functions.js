@@ -4,22 +4,21 @@ const {
   ButtonBuilder,
   ActionRowBuilder,
 } = require("discord.js");
-
-let playerMsgId;
+const { setPlaying, isPlaying, getPlayMsgId } = require("./states/playState");
 
 const showPlaying = async (queue, track) => {
   const buttons = getButtons();
   const embed = getPlayEmbed(track, queue);
-  if (playerMsgId) {
+  if (isPlaying()) {
     // Delete Last Player Message
-    const lastMessage = await queue.metadata.messages.fetch(playerMsgId);
+    const lastMessage = await queue.metadata.messages.fetch(getPlayMsgId());
     await lastMessage.delete();
   }
   const msg = await queue.metadata.send({
     embeds: [embed],
     components: [buttons],
   });
-  playerMsgId = msg.id;
+  setPlaying(msg.id);
 };
 
 const showQueue = async (queue, track) => {

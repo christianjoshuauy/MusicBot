@@ -12,6 +12,7 @@ const { stop } = require("./src/commands/stop");
 const { getQueue } = require("./src/commands/queue");
 const { search } = require("./src/commands/search");
 const { isSearching, getTrackFromNumber } = require("./src/states/searchState");
+const { resetPlaying, getPlayMsgId } = require("./src/states/playState");
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -184,6 +185,9 @@ player.events.on("emptyChannel", (queue) => {
   queue.metadata.send("❌ | Nobody is in the voice channel, leaving...");
 });
 
-player.events.on("emptyQueue", (queue) => {
-  queue.metadata.send("✅ | Queue finished!");
+player.events.on("emptyQueue", async (queue) => {
+  const lastMessage = await queue.metadata.messages.fetch(getPlayMsgId());
+  await lastMessage.delete();
+  resetPlaying();
+  queue.metadata.send("✅ | Queue finished! Closing the Player...");
 });
