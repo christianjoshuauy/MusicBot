@@ -89,7 +89,6 @@ client.on("messageCreate", (message) => {
   if (message.author.bot || !isSearching()) return;
 
   const content = message.content.trim();
-  console.log(message.content);
   const number = parseInt(content);
 
   if (!isNaN(number) && Number.isInteger(number)) {

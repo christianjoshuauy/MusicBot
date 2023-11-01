@@ -1,4 +1,5 @@
 const { QueryType } = require("discord-player");
+const { resetSearching } = require("../states/searchState");
 
 const play = async (interaction, player, queue) => {
   await interaction.deferReply();
@@ -47,6 +48,7 @@ const playFromSearch = async (track, queue) => {
 
   await queue.metadata.send(`⏱ | Loading your track..`);
   queue.addTrack(track);
+  resetSearching();
   if (!queue.isPlaying()) {
     await queue.node.play();
   }
