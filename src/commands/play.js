@@ -2,7 +2,7 @@ const { QueryType } = require("discord-player");
 const { resetSearching } = require("../states/searchState");
 
 const play = async (interaction, player, queue) => {
-  await interaction.deferReply(); // wait
+  await interaction.deferReply();
 
   const query = interaction.options.get("query").value;
   const searchResult = await player
