@@ -18,7 +18,6 @@ const showPlaying = async (queue, track) => {
     components: [buttons],
   });
   setPlaying(msg.id);
-  // hello
 };
 
 const showQueue = async (queue, track) => {
