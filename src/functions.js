@@ -10,7 +10,6 @@ const showPlaying = async (queue, track) => {
   const buttons = getButtons();
   const embed = getPlayEmbed(track, queue);
   if (isPlaying()) {
-    // Delete Last Player Message
     const lastMessage = await queue.metadata.messages.fetch(getPlayMsgId());
     await lastMessage.delete();
   }
